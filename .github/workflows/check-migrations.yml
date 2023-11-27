@@ -42,7 +42,7 @@ jobs:
           lint:
             unrelatedTable:
               enabled: true
-              allOrNothing: true
+              allOrNothing: false
             requireColumns:
               enabled: true
               columns:
