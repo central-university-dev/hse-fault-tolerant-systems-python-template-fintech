@@ -44,4 +44,4 @@ jobs:
         run: until docker inspect --format "{{json .State.Health.Status }}" postgresql | grep -m 1 "healthy"; do sleep 5; done
 
       - name: Run migrations
-        run: docker run --rm -v "$(pwd)/${{env.MIGRATIONS_FOLDER}}":/app --network "host" ${{env.LIQUIBASE_IMAGE}} update --changelog-file=/app/${{env.LIQUIBASE_CHANGELOG_FILE}} --url=jdbc:postgresql://${{env.DOCKER_LOCALHOST}}:5432/${{env.POSTGRESQL_DB}}
+        run: docker run --rm -v "$(pwd)/${{env.MIGRATIONS_FOLDER}}":/app --network "host" ${{env.LIQUIBASE_IMAGE}} update --changelog-file=/app/${{env.LIQUIBASE_CHANGELOG_FILE}} --url=jdbc:postgresql://${{env.DOCKER_LOCALHOST}}:5432/${{env.POSTGRESQL_DB}} --username="" --password=""
