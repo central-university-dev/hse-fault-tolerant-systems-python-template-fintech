@@ -26,8 +26,43 @@ jobs:
       - name: Run PostgreSQL service
         run: docker run --rm --name postgresql -p 5432:5432 -e POSTGRES_DB=${{env.POSTGRESQL_DB}} -e POSTGRES_HOST_AUTH_METHOD=trust --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -d ${{env.POSTGRESQL_IMAGE}}
 
-      - name: Wait for PostgreSQL run and headlthy
+      - name: Wait for PostgreSQL run and healthy
         run: until docker inspect --format "{{json .State.Health.Status }}" postgresql | grep -m 1 "healthy"; do sleep 5; done
 
       - name: Run migrations
         run: docker run --rm -w /app -v "$(pwd)/${{env.MIGRATIONS_FOLDER}}":/app --network "host" ${{env.LIQUIBASE_IMAGE}} update --changelog-file=${{env.LIQUIBASE_CHANGELOG_FILE}} --url=jdbc:postgresql://${{env.DOCKER_LOCALHOST}}:5432/${{env.POSTGRESQL_DB}} --username=postgres
+
+      - name: Prepare tbls config
+        run: |
+          cat <<EOF > .tbls.yml
+          dsn: postgres://postgres@${{env.DOCKER_LOCALHOST}}:5432/${{env.POSTGRESQL_DB}}?sslmode=disable
+          docPath: dbdoc
+          er:
+            distance: 2
+          lint:
+            unrelatedTable:
+              enabled: true
+              allOrNothing: true
+            requireColumns:
+              enabled: true
+              columns:
+                - id
+            duplicateRelations:
+              enabled: true
+            requireForeignKeyIndex:
+              enabled: true
+          EOF
+
+      - name: Lint database
+        run: docker run --rm -w /app -v "$(pwd):/app" --network "host" ${{env.TBLS_IMAGE}} lint
+        continue-on-error: true
+
+      - name: Draw DB schema
+        run: docker run --rm -w /app -v "$(pwd):/app" --network "host" ${{env.TBLS_IMAGE}} doc
+
+      - name: Save DB schema to artifacts
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: db-schema
+          path: dbdoc/schema.svg
+          if-no-files-found: error
