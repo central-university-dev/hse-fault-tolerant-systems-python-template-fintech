@@ -21,7 +21,7 @@ jobs:
 
     services:
       postgresql:
-        image: $POSTGRESQL_IMAGE
+        image: ${{env.POSTGRESQL_IMAGE}}
         env:
           POSTGRES_DB: ${{env.POSTGRESQL_DB}}
           POSTGRES_HOST_AUTH_METHOD: trust
