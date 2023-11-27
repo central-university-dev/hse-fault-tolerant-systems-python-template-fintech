@@ -46,7 +46,7 @@ jobs:
             requireColumns:
               enabled: true
               columns:
-                - id
+                - name: id
             duplicateRelations:
               enabled: true
             requireForeignKeyIndex:
