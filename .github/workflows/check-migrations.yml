@@ -55,10 +55,11 @@ jobs:
 
       - name: Lint database
         run: docker run --rm -w /app -v "$(pwd):/app" --network "host" ${{env.TBLS_IMAGE}} lint
-        continue-on-error: true
+        #continue-on-error: true
 
       - name: Draw DB schema
         run: docker run --rm -w /app -v "$(pwd):/app" --network "host" ${{env.TBLS_IMAGE}} doc
+        if: success() || failure()
 
       - name: Save DB schema to artifacts
         uses: actions/upload-artifact@v3.1.3
