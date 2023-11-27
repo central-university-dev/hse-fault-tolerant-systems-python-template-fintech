@@ -23,7 +23,7 @@ jobs:
       postgresql:
         image: $POSTGRESQL_IMAGE
         env:
-          POSTGRES_DB: $POSTGRESQL_DB
+          POSTGRES_DB: ${{env.POSTGRESQL_DB}}
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
@@ -38,4 +38,4 @@ jobs:
         uses: actions/checkout@v4.1.1
 
       - name: Run migrations
-        run: docker run --rm -v "$(pwd)/$MIGRATIONS_FOLDER":/app --network "host" $LIQUIBASE_IMAGE update --changelog-file=/app/$LIQUIBASE_CHANGELOG_FILE --url=jdbc:postgresql://$DOCKER_LOCALHOST:5432/$POSTGRESQL_DB
+        run: docker run --rm -v "$(pwd)/${{env.MIGRATIONS_FOLDER}}":/app --network "host" ${{env.LIQUIBASE_IMAGE}} update --changelog-file=/app/${{env.LIQUIBASE_CHANGELOG_FILE}} --url=jdbc:postgresql://${{env.DOCKER_LOCALHOST}}:5432/${{env.POSTGRESQL_DB}}
