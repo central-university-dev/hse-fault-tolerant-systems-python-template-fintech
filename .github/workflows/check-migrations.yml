@@ -1,0 +1,41 @@
+name: Test migrations and draw DB schema
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  DOCKER_LOCALHOST: 172.17.0.1
+  POSTGRESQL_IMAGE: postgres:15.5
+  LIQUIBASE_IMAGE: liquibase/liquibase:4.19.0
+  TBLS_IMAGE: ghcr.io/k1low/tbls:v1.72.0
+  POSTGRESQL_DB: fintech
+  MIGRATIONS_FOLDER: migrations
+  LIQUIBASE_CHANGELOG_FILE: changelog.xml
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+
+    services:
+      postgresql:
+        image: $POSTGRESQL_IMAGE
+        env:
+          POSTGRES_DB: $POSTGRESQL_DB
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.1
+
+      - name: Run migrations
+        run: docker run --rm -v "$(pwd)/$MIGRATIONS_FOLDER":/app --network "host" $LIQUIBASE_IMAGE update --changelog-file=/app/$LIQUIBASE_CHANGELOG_FILE --url=jdbc:postgresql://$DOCKER_LOCALHOST:5432/$POSTGRESQL_DB
