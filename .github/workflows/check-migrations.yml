@@ -38,10 +38,10 @@ jobs:
         uses: actions/checkout@v4.1.1
 
       - name: Run PostgreSQL service
-        run: docker run --rm --name postgresql -p 5432:5432 -e POSTGRES_DB=${{env.POSTGRESQL_DB}} -e POSTGRES_HOST_AUTH_METHOD=true --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -d ${{env.POSTGRESQL_IMAGE}}
+        run: docker run --rm --name postgresql -p 5432:5432 -e POSTGRES_DB=${{env.POSTGRESQL_DB}} -e POSTGRES_HOST_AUTH_METHOD=trust --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -d ${{env.POSTGRESQL_IMAGE}}
 
       - name: Wait for PostgreSQL run and headlthy
-        run: until docker inspect --format "{{json .State.Health.Status }}" postgresql|grep -m 1 "healthy"; do sleep 5 ; done
+        run: until docker inspect --format "{{json .State.Health.Status }}" postgresql | grep -m 1 "healthy"; do sleep 5; done
 
       - name: Run migrations
         run: docker run --rm -v "$(pwd)/${{env.MIGRATIONS_FOLDER}}":/app --network "host" ${{env.LIQUIBASE_IMAGE}} update --changelog-file=/app/${{env.LIQUIBASE_CHANGELOG_FILE}} --url=jdbc:postgresql://${{env.DOCKER_LOCALHOST}}:5432/${{env.POSTGRESQL_DB}}
