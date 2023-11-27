@@ -54,8 +54,13 @@ jobs:
           EOF
 
       - name: Lint database
+        id: lint_database
         run: docker run --rm -w /app -v "$(pwd):/app" --network "host" ${{env.TBLS_IMAGE}} lint
-        #continue-on-error: true
+        continue-on-error: true
+
+      - name: Show warning if lint fails
+        run: |
+          if [[ ${{ steps.lint_database.outcome }} == "failure" ]]; then echo "::warning title=DB Lint failed::Some database lint rules aren't met"; fi
 
       - name: Draw DB schema
         run: docker run --rm -w /app -v "$(pwd):/app" --network "host" ${{env.TBLS_IMAGE}} doc
