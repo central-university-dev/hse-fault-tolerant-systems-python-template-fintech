@@ -57,6 +57,9 @@ jobs:
               enabled: true
             requireForeignKeyIndex:
               enabled: true
+          exclude:
+            - databasechangeloglock
+            - databasechangelog
           EOF
 
       - name: Lint database
