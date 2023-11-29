@@ -40,6 +40,12 @@ jobs:
           er:
             distance: 2
           lint:
+            requireTableComment:
+              enabled: true
+              allOrNothing: false
+            requireColumnComment:
+              enabled: true
+              allOrNothing: false
             unrelatedTable:
               enabled: true
               allOrNothing: false
@@ -51,9 +57,6 @@ jobs:
               enabled: true
             requireForeignKeyIndex:
               enabled: true
-          exclude:
-            - databasechangeloglock
-            - databasechangelog
           EOF
 
       - name: Lint database
