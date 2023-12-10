@@ -12,7 +12,7 @@ env:
   LIQUIBASE_IMAGE: liquibase/liquibase:4.19.0
   TBLS_IMAGE: ghcr.io/k1low/tbls:v1.72.0
   POSTGRESQL_DB: fintech
-  MIGRATIONS_FOLDER: migrations
+  MIGRATIONS_FOLDER: product_engine/migrations
   LIQUIBASE_CHANGELOG_FILE: changelog.xml
 
 jobs:

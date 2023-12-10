@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  postgresql:
+    container_name: "fintech-postgresql"
+    image: postgres:15.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: product_engine
+    ports:
+      - "5432:5432"
+    networks:
+      - fintech-network
+    volumes:
+      - ./configs/create-multiple-db-with-users.sh:/docker-entrypoint-initdb.d/create-multiple-db-with-users.sh:ro
+    healthcheck:
+      test: "pg_isready -U postgres"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  pgadmin:
+    container_name: "fintech-pgadmin"
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    entrypoint: >
+      /bin/sh -c "
+      cp -f /pgadmin4/pgpass /var/lib/pgadmin/;
+      chmod 600 /var/lib/pgadmin/pgpass;
+      /entrypoint.sh
+      "
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "8080:80"
+    networks:
+      - fintech-network
+    volumes:
+      - ./configs/servers.json:/pgadmin4/servers.json:ro
+      - ./configs/pgpass:/pgadmin4/pgpass:ro
+
+networks:
+  fintech-network:
+    name: "fintech-network"
